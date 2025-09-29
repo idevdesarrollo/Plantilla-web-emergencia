@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EMERGENCY24 — Respuesta Rápida 24/7</title>
+  <meta name="description" content="Atención de emergencias 24/7. Botón SOS, llamada con un clic, geolocalización, zonas de cobertura y estado en tiempo real." />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🚑</text></svg>">
+  <style>
+    :root{
+      --bg:#0b0c10;--panel:#0f1115;--card:#111318;--text:#eef2f6;--muted:#aab2bf;--brand:#ef4444;--accent:#22c55e;--warn:#f59e0b;--ok:#22c55e;--border:#20232b;--radius:18px;--shadow:0 10px 30px rgba(0,0,0,.35);--sans:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    @media (prefers-color-scheme: light){:root{--bg:#f7f9fc;--panel:#ffffff;--card:#ffffff;--text:#0b0c10;--muted:#475569;--border:#e5e7eb;--shadow:0 10px 30px rgba(2,6,23,.08)}}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6}
+    .wrap{max-width:1200px;margin-inline:auto;padding:22px}
+
+    header{position:sticky;top:0;z-index:50;background:color-mix(in oklab, var(--bg) 70%, transparent);backdrop-filter:saturate(1.1) blur(8px);border-bottom:1px solid var(--border)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:42px;height:42px;border-radius:10px;border:1px solid var(--border);display:grid;place-items:center;background:var(--panel);box-shadow:var(--shadow)}
+    .brand h1{font-size:1rem;margin:0}
+    .brand p{margin:0;color:var(--muted);font-size:.85rem}
+    nav a{color:var(--muted);text-decoration:none;margin-left:10px;padding:8px 10px;border-radius:12px}
+    nav a:hover{color:var(--text);background:color-mix(in oklab, var(--panel), transparent 70%)}
+    .menu-btn{display:none}
+    @media (max-width:920px){nav{display:none}.menu-btn{display:inline-flex}}
+
+    .alert{border:1px solid var(--border);border-left:6px solid var(--brand);border-radius:12px;background:color-mix(in oklab,var(--panel),transparent 20%);padding:14px;margin-top:14px}
+    .alert strong{color:var(--brand)}
+
+    .hero{border:1px solid var(--border);border-radius:var(--radius);background:
+      radial-gradient(1000px 500px at 15% -10%, color-mix(in oklab,var(--brand) 25%, transparent), transparent),
+      radial-gradient(900px 500px at 90% 0%, color-mix(in oklab,var(--accent) 25%, transparent), transparent),
+      var(--panel);box-shadow:var(--shadow);margin-top:18px}
+    .hero .inner{padding:28px}
+    .hero h2{margin:.2rem 0;font-size:2rem}
+    .hero p{margin:0;color:var(--muted)}
+
+    .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);text-decoration:none;color:var(--text);background:color-mix(in oklab,var(--panel), transparent 50%)}
+    .btn.primary{border:none;background:linear-gradient(135deg,var(--brand),#f87171);color:#0b0c10;font-weight:800}
+    .btn.safe{border:none;background:linear-gradient(135deg,var(--accent),#86efac);color:#0b0c10;font-weight:700}
+    .btn.warn{border:1px solid var(--warn)}
+    .btn:hover{filter:brightness(1.05)}
+
+    section{margin-top:24px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .pad{padding:18px}
+    .muted{color:var(--muted)}
+
+    .service{display:flex;gap:12px}
+    .ico{font-size:1.4rem}
+
+    .status{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .status .kpi{padding:14px;border:1px solid var(--border);border-radius:14px;background:color-mix(in oklab,var(--panel), transparent 30%);text-align:center}
+    .kpi b{display:block;font-size:1.4rem}
+
+    .faq details{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--panel)}
+    .faq details+details{margin-top:8px}
+
+    .floating-sos{position:fixed;right:18px;bottom:18px;z-index:60}
+    .toggle{position:fixed;right:18px;bottom:78px;z-index:60}
+    .fontplus{position:fixed;right:18px;bottom:138px;z-index:60}
+
+    .badges{display:flex;gap:8px;flex-wrap:wrap}
+    .badge{font:600 .78rem/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:color-mix(in oklab,var(--panel),transparent 60%)}
+
+    footer{margin:36px 0 12px;color:var(--muted);font-size:.9rem}
+
+    @media print{
+      header, .menu-btn, .floating-sos, .toggle, .fontplus, #mapBtn {display:none!important}
+      .wrap{padding:0}
+      body{background:#fff;color:#000}
+      .card{box-shadow:none;border-color:#ddd}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo">🚑</div>
+        <div>
+          <h1>EMERGENCY24</h1>
+          <p class="muted">Respuesta Rápida · Tu Ciudad</p>
+        </div>
+      </div>
+      <nav aria-label="Principal">
+        <a href="#sos">SOS</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#cobertura">Cobertura</a>
+        <a href="#estado">Estado</a>
+        <a href="#faq">FAQs</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <button class="menu-btn btn" aria-label="Abrir menú" onclick="document.querySelector('header nav').style.display = (getComputedStyle(document.querySelector('header nav')).display==='none'?'block':'none')">☰</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="alert" role="status"><strong>ALERTA:</strong> Si hay riesgo vital, llama a <b>131</b> (Ambulancia), <b>132</b> (Bomberos) o <b>133</b> (Carabineros) inmediatamente.</div>
+
+    <section class="hero card" id="sos">
+      <div class="inner">
+        <h2>Emergencias 24/7 — Llama ahora</h2>
+        <p>Atendemos urgencias médicas, rescate básico y traslado asistido. Comparte tu ubicación para acelerar la respuesta.</p>
+        <div class="cta">
+          <a class="btn primary" href="tel:+56912345678">📞 Llamar Central</a>
+          <a class="btn safe" id="waQuick" href="https://wa.me/56912345678?text=SOS%20Necesito%20ayuda" target="_blank" rel="noopener">WhatsApp SOS</a>
+          <button class="btn warn" id="mapBtn" type="button">📍 Enviar mi ubicación</button>
+        </div>
+        <div class="badges" style="margin-top:10px">
+          <span class="badge">⏱️ ETA objetivo &lt; 15 min</span>
+          <span class="badge">🧑‍⚕️ TENS/Paramédicos</span>
+          <span class="badge">🚑 Traslado asistido</span>
+          <span class="badge">🩹 Primeros auxilios</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="servicios">
+      <h3>Servicios</h3>
+      <div class="grid">
+        <article class="card pad service"><div class="ico">🩺</div><div><h4>Atención en sitio</h4><p class="muted">Evaluación primaria (ABCDE), signos vitales, contención y estabilización.</p></div></article>
+        <article class="card pad service"><div class="ico">🧯</div><div><h4>Primeros auxilios</h4><p class="muted">Heridas, quemaduras leves, inmovilización básica, RCP.</p></div></article>
+        <article class="card pad service"><div class="ico">🚑</div><div><h4>Traslado</h4><p class="muted">Derivación a centros asistenciales, acompañamiento.</p></div></article>
+        <article class="card pad service"><div class="ico">🧰</div><div><h4>Standby de eventos</h4><p class="muted">Cobertura preventiva para actividades masivas.</p></div></article>
+        <article class="card pad service"><div class="ico">🧪</div><div><h4>Test rápidos</h4><p class="muted">Glucosa, PA, temperatura, saturación.</p></div></article>
+        <article class="card pad service"><div class="ico">📋</div><div><h4>Capacitaciones</h4><p class="muted">RCP y primeros auxilios para empresas y colegios.</p></div></article>
+      </div>
+    </section>
+
+    <section id="cobertura">
+      <h3>Zonas de cobertura</h3>
+      <div class="grid">
+        <div class="card pad">
+          <h4>Radio urbano</h4>
+          <p class="muted">Tu Ciudad, comunas aledañas (radio 15–20 km). Fuera de zona: sujeto a disponibilidad.</p>
+          <div class="badges"><span class="badge">24/7</span><span class="badge">ETA &lt; 20 min</span><span class="badge">Prioridad riesgo vital</span></div>
+          <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Tu%20Ciudad">Abrir mapa</a>
+        </div>
+        <div class="card pad">
+          <h4>Costos de desplazamiento</h4>
+          <ul style="margin:0;padding-left:18px">
+            <li>Zona A (0–5 km): incluido</li>
+            <li>Zona B (6–12 km): +$5.000</li>
+            <li>Zona C (13–20 km): +$9.000</li>
+          </ul>
+          <p class="muted">Valores referenciales en CLP. Solicita cotización.</p>
+        </div>
+        <div class="card pad">
+          <h4>Recomendación</h4>
+          <p>Si tu caso es <strong>riesgo vital</strong>, llama a los números de emergencia estatales:</p>
+          <ul style="margin:0;padding-left:18px">
+            <li>Ambulancia: <b>131</b></li>
+            <li>Bomberos: <b>132</b></li>
+            <li>Policía: <b>133</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="estado">
+      <h3>Estado en tiempo real</h3>
+      <div class="status">
+        <div class="kpi"><span>Unidades activas</span><b id="kpi1">2</b></div>
+        <div class="kpi"><span>Solicitudes últimas 24h</span><b id="kpi2">18</b></div>
+        <div class="kpi"><span>Tiempo medio respuesta</span><b id="kpi3">14m</b></div>
+        <div class="kpi"><span>SLA cumplido</span><b id="kpi4">92%</b></div>
+      </div>
+      <div class="card pad" style="margin-top:12px">
+        <h4>Reporta un incidente</h4>
+        <form onsubmit="event.preventDefault(); reportar();">
+          <label>Nombre<br><input id="pNombre" required style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)"></label>
+          <label>Teléfono<br><input id="pTel" type="tel" required style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)"></label>
+          <label>Dirección/Referencia<br><input id="pDir" required placeholder="Calle, nº, cruce, punto de referencia" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)"></label>
+          <label>Gravedad<br>
+            <select id="pGrav" required style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)">
+              <option>Alta (riesgo vital)</option>
+              <option>Media</option>
+              <option>Baja</option>
+            </select>
+          </label>
+          <label>Descripción<br><textarea id="pDesc" rows="3" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)" placeholder="Qué ocurrió, cuántos afectados, señales visibles…"></textarea></label>
+          <div class="cta" style="margin-top:8px">
+            <button class="btn primary" type="submit">Enviar por WhatsApp</button>
+            <button class="btn" type="reset">Limpiar</button>
+          </div>
+          <p class="muted" style="margin-top:8px">Nota: Para casos críticos, llama a <b>131</b> primero.</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="faq" class="faq">
+      <h3>Preguntas frecuentes</h3>
+      <details open><summary>¿Atienden 24/7?</summary><p>Sí, operamos todo el año con disponibilidad sujeta a unidades activas.</p></details>
+      <details><summary>¿Qué equipo llevan?</summary><p>Botiquín avanzado, desfibrilador (DEA), oxigenoterapia básica, inmovilización y comunicaciones.</p></details>
+      <details><summary>¿Cómo se calcula el costo?</summary><p>Según tipo de servicio, insumos utilizados y desplazamiento. Cotizamos por WhatsApp.</p></details>
+      <details><summary>¿Trabajan con eventos?</summary><p>Sí, realizamos cobertura preventiva con briefing de riesgos y plan de evacuación.</p></details>
+    </section>
+
+    <section id="contacto">
+      <h3>Contacto</h3>
+      <div class="grid">
+        <div class="card pad">
+          <h4>Central</h4>
+          <p><strong>Tel:</strong> <a href="tel:+56912345678">+56 9 1234 5678</a><br>
+             <strong>WhatsApp:</strong> <a target="_blank" rel="noopener" href="https://wa.me/56912345678">+56 9 1234 5678</a><br>
+             <strong>Email:</strong> <a href="mailto:central@emergency24.cl">central@emergency24.cl</a></p>
+        </div>
+        <div class="card pad">
+          <h4>Dirección</h4>
+          <p>Av. Rescate 1234, Tu Ciudad</p>
+          <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Av.%20Rescate%201234%20Tu%20Ciudad">Abrir mapa</a>
+        </div>
+        <div class="card pad">
+          <h4>Compromisos</h4>
+          <ul style="margin:0;padding-left:18px">
+            <li>Tiempo de respuesta objetivo</li>
+            <li>Protocolos y checklists</li>
+            <li>Capacitación continua</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © <span id="year"></span> EMERGENCY24 · <a class="muted" href="#">Términos</a> · <a class="muted" href="#">Privacidad</a>
+      <span style="float:right"><a href="#sos">↑ Volver al SOS</a></span>
+    </footer>
+  </main>
+
+  <!-- Botones accesibilidad / SOS -->
+  <a class="btn primary floating-sos" href="tel:+56912345678">SOS</a>
+  <button class="btn toggle" id="themeToggle" aria-pressed="false">🌙 Oscuro</button>
+  <button class="btn fontplus" id="fontPlus" aria-pressed="false" title="Aumentar tamaño de texto">A+</button>
+
+  <!-- JSON-LD EmergencyService -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"EmergencyService",
+    "name":"EMERGENCY24",
+    "telephone":"+56 9 1234 5678",
+    "email":"central@emergency24.cl",
+    "address":{"@type":"PostalAddress","streetAddress":"Av. Rescate 1234","addressLocality":"Tu Ciudad","addressCountry":"CL"},
+    "areaServed":"Tu Ciudad y alrededores",
+    "availableService":["Atención en sitio","Traslado","Primeros auxilios"],
+    "openingHours":"Mo-Su 00:00-23:59",
+    "url":"https://tudominio.cl"
+  }
+  </script>
+
+  <script>
+    // Año
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Tema claro/oscuro
+    const toggle = document.getElementById('themeToggle');
+    const key = 'emg-theme';
+    const apply = (m)=>{document.documentElement.dataset.theme=m;toggle.textContent = (m==='dark'?'☀️ Claro':'🌙 Oscuro');toggle.setAttribute('aria-pressed', m==='dark');};
+    const saved = localStorage.getItem(key) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+    apply(saved);
+    toggle.addEventListener('click', ()=>{const next = (document.documentElement.dataset.theme==='dark')?'light':'dark';localStorage.setItem(key,next);apply(next)});
+
+    // Aumentar tamaño de fuente para accesibilidad
+    const btnFont = document.getElementById('fontPlus');
+    btnFont.addEventListener('click', ()=>{
+      const cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-font-size')||'16');
+      const bodySize = parseFloat(getComputedStyle(document.body).fontSize);
+      document.body.style.fontSize = (bodySize+1)+'px';
+    });
+
+    // Geolocalización para enviar ubicación por WhatsApp o Google Maps
+    const mapBtn = document.getElementById('mapBtn');
+    mapBtn.addEventListener('click', async ()=>{
+      if(!('geolocation' in navigator)){
+        alert('Geolocalización no disponible en este dispositivo.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const {latitude, longitude} = pos.coords;
+        const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
+        const text = encodeURIComponent(`SOS, mi ubicación: ${gmaps}`);
+        const wa = `https://wa.me/56912345678?text=${text}`; // ⇐ Cambia el número
+        if(confirm('¿Abrir WhatsApp con tu ubicación? (Cancelar abrirá Google Maps)')){
+          window.open(wa,'_blank');
+        }else{
+          window.open(gmaps,'_blank');
+        }
+      }, err=>{
+        alert('No pudimos obtener tu ubicación. Revisa permisos de ubicación.');
+      }, {enableHighAccuracy:true, timeout:10000});
+    });
+
+    // Reporte por WhatsApp
+    function reportar(){
+      const nombre = encodeURIComponent(document.getElementById('pNombre').value.trim());
+      const tel    = encodeURIComponent(document.getElementById('pTel').value.trim());
+      const dir    = encodeURIComponent(document.getElementById('pDir').value.trim());
+      const grav   = encodeURIComponent(document.getElementById('pGrav').value);
+      const desc   = encodeURIComponent(document.getElementById('pDesc').value.trim());
+      const msg = `*REPORTE*%0ADe: ${nombre} (${tel})%0ADirección: ${dir}%0AGravedad: ${grav}%0ADescripción: ${desc}`;
+      const numero = '56912345678'; // ⇐ Cambia aquí
+      window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
+    }
+
+    // KPIs demo (puedes reemplazar por datos reales desde backend)
+    setInterval(()=>{
+      const r = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+      document.getElementById('kpi1').textContent = r(1,3);
+      document.getElementById('kpi2').textContent = r(10,25);
+      document.getElementById('kpi3').textContent = r(9,18)+'m';
+      document.getElementById('kpi4').textContent = r(88,99)+'%';
+    }, 8000);
+
+    // Prefill WhatsApp SOS con fecha/hora
+    (function(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      const payload = encodeURIComponent(`SOS ${hh}:${mm} — necesito ayuda`);
+      document.getElementById('waQuick').href = `https://wa.me/56912345678?text=${payload}`;
+    })();
+  </script>
+</body>
+</html>
